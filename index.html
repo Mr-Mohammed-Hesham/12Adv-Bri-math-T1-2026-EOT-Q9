@@ -1,0 +1,972 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>📊 Non-differentiability - رياضيات 12 متقدم | Mr. Mohammed Hesham</title>
+<meta name="description" content="امتحان تفاعلي عن عدم قابلية الاشتقاق - رياضيات 12 متقدم">
+<meta name="author" content="Mr. Mohammed Hesham">
+<script src="https://cdn.tailwindcss.com"></script>
+<script src="https://cdn.jsdelivr.net/npm/@emailjs/browser@3/dist/email.min.js"></script>
+<link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700;900&family=Inter:wght@400;600;700&family=Amiri:wght@400;700&display=swap" rel="stylesheet">
+<style>
+body { font-family: 'Cairo', sans-serif; background: linear-gradient(135deg, #fef3c7 0%, #fde68a 100%); }
+body.en-mode { font-family: 'Inter', sans-serif; }
+.arabic-math { font-family: 'Amiri', 'Cairo', serif; }
+.correct { background-color: #dcfce7 !important; border-color: #16a34a !important; }
+.incorrect { background-color: #fee2e2 !important; border-color: #dc2626 !important; }
+.timer-warning { color: #dc2626 !important; animation: pulse 1s infinite; }
+@keyframes pulse { 50% { opacity: 0.7; } }
+@media print { .no-print { display: none !important; } }
+.success-badge { display: inline-block; padding: 4px 12px; border-radius: 20px; font-weight: bold; font-size: 0.875rem; }
+.grade-excellent { background: #dcfce7; color: #166534; }
+.grade-good { background: #fef3c7; color: #92400e; }
+.grade-pass { background: #dbeafe; color: #1e40af; }
+.grade-fail { background: #fee2e2; color: #991b1b; }
+.lang-switch { position: fixed; top: 16px; left: 16px; z-index: 100; background: white; padding: 6px; border-radius: 30px; box-shadow: 0 4px 15px rgba(0,0,0,0.15); display: flex; gap: 4px; border: 2px solid #d97706; }
+[dir="ltr"] .lang-switch { left: auto; right: 16px; }
+.lang-btn { padding: 6px 14px; border-radius: 20px; cursor: pointer; font-weight: bold; transition: all 0.3s; border: none; font-size: 0.875rem; background: transparent; color: #6b7280; }
+.lang-btn.active { background: #d97706; color: white; box-shadow: 0 2px 6px rgba(217,119,6,0.4); }
+.shuffle-badge { display: inline-block; background: linear-gradient(135deg, #d97706, #b45309); color: white; padding: 4px 12px; border-radius: 20px; font-size: 0.75rem; font-weight: bold; margin-right: 8px; }
+.math-display { display: inline-block; direction: ltr; font-family: 'Amiri', serif; font-size: 1.2em; padding: 2px 8px; background: #fef3c7; border-radius: 6px; margin: 2px; color: #92400e; font-weight: 600; }
+.save-indicator { position: fixed; bottom: 20px; left: 20px; z-index: 200; background: #10b981; color: white; padding: 8px 16px; border-radius: 20px; font-size: 0.8rem; font-weight: bold; opacity: 0; transition: opacity 0.3s; pointer-events: none; }
+.save-indicator.show { opacity: 1; }
+.formula-box { background: #fef3c7; border: 2px solid #f59e0b; border-radius: 8px; padding: 12px; margin: 10px 0; font-family: 'Amiri', serif; direction: ltr; text-align: center; }
+.svg-graph { display: block; margin: 12px auto; background: white; border: 2px solid #e5e7eb; border-radius: 12px; padding: 8px; }
+.graph-container { text-align: center; margin: 10px 0; }
+.module-badge { display: inline-block; padding: 4px 16px; border-radius: 20px; font-weight: bold; font-size: 0.85rem; margin-bottom: 8px; }
+.module-1 { background: #fef3c7; color: #92400e; }
+.module-2 { background: #dbeafe; color: #1e40af; }
+.module-3 { background: #fce7f3; color: #9f1239; }
+.module-4 { background: #ecfdf5; color: #065f46; }
+.module-5 { background: #ede9fe; color: #5b21b6; }
+</style>
+</head>
+<body class="p-4 md:p-8 min-h-screen">
+
+<div class="lang-switch no-print">
+<button class="lang-btn active" onclick="setLanguage('ar')" id="btn-ar">عربي</button>
+<button class="lang-btn" onclick="setLanguage('en')" id="btn-en">EN</button>
+</div>
+
+<div id="saveIndicator" class="save-indicator">💾 <span data-ar="تم الحفظ" data-en="Saved">تم الحفظ</span></div>
+
+<div id="timer-container" class="max-w-5xl mx-auto mb-4 text-center no-print">
+<div class="bg-white p-4 rounded-2xl shadow-lg inline-block border-2 border-amber-100">
+<span class="text-gray-600 ml-2">⏰ الوقت المتبقي:</span>
+<span id="timer" class="text-2xl font-bold text-amber-700 font-mono">60:00</span>
+<span class="shuffle-badge"> Non-differentiability - 25 سؤال</span>
+</div>
+</div>
+
+<div class="max-w-5xl mx-auto mb-6 flex flex-wrap gap-3 justify-center no-print">
+<button onclick="toggleAnswers()" class="bg-amber-700 hover:bg-amber-800 text-white px-5 py-2 rounded-xl font-medium transition shadow">👀 إظهار/إخفاء الإجابات</button>
+<button onclick="window.print()" class="bg-gray-700 hover:bg-gray-900 text-white px-5 py-2 rounded-xl font-medium transition shadow">🖨️ طباعة</button>
+<button onclick="reshuffleExam()" class="bg-gradient-to-r from-amber-700 to-orange-600 hover:from-amber-800 hover:to-orange-700 text-white px-5 py-2 rounded-xl font-medium transition shadow">🔄 أسئلة جديدة</button>
+<button onclick="clearProgress()" class="bg-red-500 hover:bg-red-600 text-white px-5 py-2 rounded-xl font-medium transition shadow">️ مسح التقدم</button>
+</div>
+
+<header class="max-w-5xl mx-auto bg-white p-8 rounded-3xl shadow-2xl mb-8 border-4 border-amber-500">
+<div class="text-center">
+<div class="inline-block bg-amber-700 text-white px-6 py-2 rounded-full text-sm font-bold mb-4">MATH 12 ADVANCED - QUESTION 9</div>
+<h1 class="text-3xl md:text-4xl font-bold text-gray-900 mb-4">📊 عدم قابلية الاشتقاق</h1>
+<h2 class="text-xl text-amber-700 font-semibold mb-2">رياضيات 12 متقدم - تمارين 29, 30</h2>
+<p class="text-gray-600 mb-4">Non-differentiability, Absolute Value & Exponential Functions</p>
+<p class="text-sm text-green-600 font-semibold">💾 يتم حفظ تقدمك تلقائياً - 25 سؤالاً في 5 أقسام</p>
+</div>
+<div class="mt-6 flex flex-wrap justify-center gap-4 text-sm text-gray-600">
+<span>📅 التاريخ: <input type="text" id="examDate" class="border-b-2 border-amber-300 bg-transparent w-32 text-center"></span>
+<span>😊 الاسم: <input type="text" id="studentName" class="border-b-2 border-amber-300 bg-transparent w-40 text-center" placeholder="اكتب اسمك"></span>
+<span>🏫 الشعبة: <input type="text" id="studentClass" class="border-b-2 border-amber-300 bg-transparent w-32 text-center" placeholder="الشعبة"></span>
+<span>⏰ المدة: 60 دقيقة</span>
+<span> المجموع: 100 درجة</span>
+</div>
+</header>
+
+<div class="max-w-5xl mx-auto mb-6 bg-white p-4 rounded-xl shadow-lg border-2 border-amber-200 no-print">
+<h3 class="font-bold text-lg mb-3 text-amber-800 text-center">📐 شروط قابلية الاشتقاق</h3>
+<div class="grid md:grid-cols-3 gap-3 text-sm">
+<div class="formula-box"><strong>Differentiable at x=a:</strong><br>lim h→0 [f(a+h)-f(a)]/h exists</div>
+<div class="formula-box"><strong>NOT differentiable when:</strong><br>Corner, Cusp, Discontinuity, Vertical tangent</div>
+<div class="formula-box"><strong>|x| not diff. at x=0</strong><br>Corner point</div>
+<div class="formula-box"><strong>|x-a| not diff. at x=a</strong><br>Corner point</div>
+<div class="formula-box"><strong>e^(-1/x) not diff. at x=0</strong><br>Discontinuity</div>
+<div class="formula-box"><strong>Continuous ≠ Differentiable</strong><br>But: Differentiable → Continuous</div>
+</div>
+</div>
+
+<main class="max-w-5xl mx-auto space-y-8" id="exam-content"></main>
+
+<div class="text-center no-print pb-8 mt-8">
+<button onclick="gradeExam()" class="bg-gradient-to-r from-amber-700 to-orange-600 hover:from-amber-800 hover:to-orange-700 text-white text-lg px-12 py-4 rounded-2xl font-bold shadow-xl transition transform hover:scale-105"> صحح إجاباتي!</button>
+</div>
+
+<div id="results-panel" class="max-w-5xl mx-auto mt-8 bg-white p-8 rounded-3xl shadow-2xl border-4 border-amber-500 hidden no-print">
+<h2 class="text-3xl font-bold text-gray-900 mb-6 text-center"> نتيجتك يا بطل! 🏆</h2>
+<div class="grid md:grid-cols-3 gap-4 mb-6">
+<div class="bg-amber-50 p-4 rounded-xl text-center"><p>😊 الاسم</p><p id="res-name" class="font-bold text-xl text-amber-700">-</p></div>
+<div class="bg-orange-50 p-4 rounded-xl text-center"><p>📅 التاريخ</p><p id="res-date" class="font-bold text-xl text-orange-700">-</p></div>
+<div class="bg-amber-50 p-4 rounded-xl text-center"><p> المجموع</p><p id="res-total" class="font-bold text-3xl text-amber-700">0 / 100</p></div>
+</div>
+<div class="text-center mb-6">
+<span id="success-badge" class="success-badge grade-excellent">-</span>
+<p id="success-percent" class="text-4xl font-bold text-amber-700 mt-2">0%</p>
+<p class="text-sm text-gray-500">نسبة النجاح</p>
+</div>
+<div class="bg-gray-50 p-6 rounded-xl mb-6">
+<h3 class="font-bold text-lg mb-4 text-gray-800">📊 أدائك في كل قسم:</h3>
+<div class="space-y-3" id="sections-performance"></div>
+</div>
+<div class="text-center">
+<button id="sendEmailBtn" onclick="sendResultsToEmail()" class="bg-gradient-to-r from-amber-700 to-orange-600 text-white text-lg px-8 py-3 rounded-2xl font-bold shadow-xl transition">📧 أرسل النتيجة للمعلم</button>
+<p id="emailStatus" class="text-sm mt-2 text-center font-medium"></p>
+</div>
+</div>
+
+<footer class="max-w-5xl mx-auto mt-10 mb-8 text-center text-gray-500 text-sm no-print">
+© Non-differentiability - Grade 12 Advanced | Mr. Mohammed Hesham 📊
+</footer>
+
+<script>
+const PUBLIC_KEY = "Rb3Lq8tXaFmc5YHUH";
+const SERVICE_ID = "service_w15m64i";
+const TEMPLATE_ID = "template_5b0u2tq";
+const TARGET_EMAIL = "mohammedhesham872@gmail.com";
+emailjs.init(PUBLIC_KEY);
+
+const STORAGE_KEY = 'nondifferentiability_grade12_v1';
+const TOTAL_TIME = 3600;
+const TOTAL_QUESTIONS = 25;
+const TOTAL_SECTIONS = 5;
+const QUESTIONS_PER_SECTION = 5;
+
+let currentSeed = null;
+let answersVisible = false;
+let saveIndicatorTimeout = null;
+let currentLang = 'ar';
+let timeRemaining = TOTAL_TIME;
+let timerInterval;
+let examData;
+let correctAnswersMap = {};
+let rng = null;
+
+function mulberry32(a) {
+    return function() {
+        var t = a += 0x6D2B79F5;
+        t = Math.imul(t ^ t >>> 15, t | 1);
+        t ^= t + Math.imul(t ^ t >>> 7, t | 61);
+        return ((t ^ t >>> 14) >>> 0) / 4294967296;
+    }
+}
+
+function showSaveIndicator() {
+    const indicator = document.getElementById('saveIndicator');
+    indicator.classList.add('show');
+    if (saveIndicatorTimeout) clearTimeout(saveIndicatorTimeout);
+    saveIndicatorTimeout = setTimeout(() => indicator.classList.remove('show'), 1500);
+}
+
+function saveState(showIndicator = true) {
+    try {
+        const state = {
+            seed: currentSeed, lang: currentLang,
+            studentName: document.getElementById('studentName').value,
+            studentClass: document.getElementById('studentClass').value,
+            examDate: document.getElementById('examDate').value,
+            answers: getSelectedAnswers(),
+            timeRemaining: timeRemaining,
+            answersVisible: answersVisible, savedAt: Date.now()
+        };
+        localStorage.setItem(STORAGE_KEY, JSON.stringify(state));
+        if (showIndicator) showSaveIndicator();
+    } catch (e) { console.error('Save error:', e); }
+}
+
+function loadState() {
+    try {
+        const saved = localStorage.getItem(STORAGE_KEY);
+        return saved ? JSON.parse(saved) : null;
+    } catch (e) { return null; }
+}
+
+function getSelectedAnswers() {
+    const answers = {};
+    for (let i = 0; i < TOTAL_QUESTIONS; i++) {
+        const selected = document.querySelector('input[name="q'+i+'"]:checked');
+        if (selected) answers[i] = selected.value;
+    }
+    return answers;
+}
+
+function restoreAnswers(answers) {
+    if (!answers) return;
+    for (const [idx, val] of Object.entries(answers)) {
+        const radio = document.querySelector('input[name="q'+idx+'"][value="'+val+'"]');
+        if (radio) radio.checked = true;
+    }
+}
+
+function clearProgress() {
+    const msg = currentLang === 'ar' ? '⚠️ هل أنت متأكد من مسح كل التقدم؟' : '⚠️ Clear all progress?';
+    if (confirm(msg)) { localStorage.removeItem(STORAGE_KEY); location.reload(); }
+}
+
+function setupAnswerListeners() {
+    document.getElementById('exam-content').addEventListener('change', (e) => {
+        if (e.target.type === 'radio') saveState();
+    });
+}
+
+function setupInputListeners() {
+    ['studentName', 'studentClass', 'examDate'].forEach(id => {
+        const el = document.getElementById(id);
+        if (el) {
+            el.addEventListener('input', () => saveState(false));
+            el.addEventListener('blur', () => saveState());
+        }
+    });
+}
+
+// ==================== SVG DIAGRAMS ====================
+const svgGraphs = {
+    // |x| function with corner at origin
+    abs_x: `<svg class="svg-graph" width="400" height="280" viewBox="0 0 400 280" xmlns="http://www.w3.org/2000/svg">
+        <rect x="5" y="5" width="390" height="270" rx="12" fill="#fef3c7" stroke="#f59e0b" stroke-width="2"/>
+        <text x="200" y="25" text-anchor="middle" font-size="14" fill="#92400e" font-weight="bold">f(x) = |x| - غير قابلة للاشتقاق عند x=0</text>
+        <!-- Axes -->
+        <line x1="50" y1="200" x2="370" y2="200" stroke="#374151" stroke-width="2" marker-end="url(#arrow)"/>
+        <line x1="200" y1="250" x2="200" y2="30" stroke="#374151" stroke-width="2" marker-end="url(#arrow)"/>
+        <text x="380" y="205" font-size="12" fill="#374151">x</text>
+        <text x="190" y="25" font-size="12" fill="#374151">y</text>
+        <text x="200" y="215" text-anchor="middle" font-size="10" fill="#374151">0</text>
+        <!-- V-shape for |x| -->
+        <path d="M 60 140 L 200 200 L 340 140" fill="none" stroke="#dc2626" stroke-width="3"/>
+        <!-- Corner point at origin -->
+        <circle cx="200" cy="200" r="7" fill="#dc2626" stroke="#991b1b" stroke-width="2"/>
+        <text x="215" y="220" font-size="11" fill="#dc2626" font-weight="bold">Corner (0,0)</text>
+        <!-- Tangent lines showing different slopes -->
+        <line x1="100" y1="160" x2="180" y2="195" stroke="#2563eb" stroke-width="2" stroke-dasharray="4"/>
+        <text x="110" y="155" font-size="9" fill="#2563eb">slope = -1</text>
+        <line x1="220" y1="195" x2="300" y2="160" stroke="#2563eb" stroke-width="2" stroke-dasharray="4"/>
+        <text x="290" y="155" font-size="9" fill="#2563eb">slope = +1</text>
+        <text x="200" y="250" text-anchor="middle" font-size="11" fill="#92400e">Left derivative ≠ Right derivative → NOT differentiable at x=0</text>
+        <defs><marker id="arrow" markerWidth="10" markerHeight="10" refX="9" refY="3" orient="auto"><path d="M0,0 L0,6 L9,3 z" fill="#374151"/></marker></defs>
+    </svg>`,
+    
+    // |x| + |x-2| function
+    abs_x_plus_abs_x_minus_2: `<svg class="svg-graph" width="400" height="280" viewBox="0 0 400 280" xmlns="http://www.w3.org/2000/svg">
+        <rect x="5" y="5" width="390" height="270" rx="12" fill="#dbeafe" stroke="#2563eb" stroke-width="2"/>
+        <text x="200" y="25" text-anchor="middle" font-size="14" fill="#1e40af" font-weight="bold">f(x) = |x| + |x-2| - تمرين 29(a)</text>
+        <!-- Axes -->
+        <line x1="50" y1="230" x2="370" y2="230" stroke="#374151" stroke-width="2" marker-end="url(#arrow2)"/>
+        <line x1="100" y1="250" x2="100" y2="30" stroke="#374151" stroke-width="2" marker-end="url(#arrow2)"/>
+        <text x="380" y="235" font-size="12" fill="#374151">x</text>
+        <text x="90" y="25" font-size="12" fill="#374151">y</text>
+        <text x="100" y="245" text-anchor="middle" font-size="10" fill="#374151">0</text>
+        <!-- Piecewise function -->
+        <!-- x < 0: f(x) = -x + (2-x) = 2-2x, slope = -2 -->
+        <line x1="60" y1="210" x2="100" y2="130" stroke="#2563eb" stroke-width="3"/>
+        <!-- 0 ≤ x ≤ 2: f(x) = x + (2-x) = 2, constant -->
+        <line x1="100" y1="130" x2="200" y2="130" stroke="#10b981" stroke-width="3"/>
+        <!-- x > 2: f(x) = x + (x-2) = 2x-2, slope = 2 -->
+        <line x1="200" y1="130" x2="340" y2="50" stroke="#dc2626" stroke-width="3"/>
+        <!-- Corner points -->
+        <circle cx="100" cy="130" r="6" fill="#f59e0b" stroke="#d97706" stroke-width="2"/>
+        <text x="100" y="115" text-anchor="middle" font-size="10" fill="#d97706" font-weight="bold">x=0</text>
+        <circle cx="200" cy="130" r="6" fill="#f59e0b" stroke="#d97706" stroke-width="2"/>
+        <text x="200" y="115" text-anchor="middle" font-size="10" fill="#d97706" font-weight="bold">x=2</text>
+        <!-- Slope labels -->
+        <text x="70" y="175" font-size="9" fill="#2563eb">slope = -2</text>
+        <text x="140" y="120" font-size="9" fill="#10b981">slope = 0</text>
+        <text x="270" y="95" font-size="9" fill="#dc2626">slope = +2</text>
+        <text x="200" y="265" text-anchor="middle" font-size="11" fill="#1e40af">Not differentiable at x=0 and x=2 (corners)</text>
+        <defs><marker id="arrow2" markerWidth="10" markerHeight="10" refX="9" refY="3" orient="auto"><path d="M0,0 L0,6 L9,3 z" fill="#374151"/></marker></defs>
+    </svg>`,
+    
+    // |x² - 4x| function
+    abs_x_squared_minus_4x: `<svg class="svg-graph" width="400" height="300" viewBox="0 0 400 300" xmlns="http://www.w3.org/2000/svg">
+        <rect x="5" y="5" width="390" height="290" rx="12" fill="#fce7f3" stroke="#ec4899" stroke-width="2"/>
+        <text x="200" y="25" text-anchor="middle" font-size="14" fill="#9f1239" font-weight="bold">f(x) = |x² - 4x| - تمرين 29(b)</text>
+        <!-- Axes -->
+        <line x1="50" y1="240" x2="370" y2="240" stroke="#374151" stroke-width="2" marker-end="url(#arrow3)"/>
+        <line x1="100" y1="240" x2="100" y2="30" stroke="#374151" stroke-width="2" marker-end="url(#arrow3)"/>
+        <text x="380" y="245" font-size="12" fill="#374151">x</text>
+        <text x="90" y="25" font-size="12" fill="#374151">y</text>
+        <text x="100" y="255" text-anchor="middle" font-size="10" fill="#374151">0</text>
+        <!-- x² - 4x = x(x-4), zeros at x=0 and x=4 -->
+        <!-- For x < 0: x²-4x > 0, so |x²-4x| = x²-4x (parabola opening up) -->
+        <path d="M 60 100 Q 80 150 100 240" fill="none" stroke="#2563eb" stroke-width="3"/>
+        <!-- For 0 < x < 4: x²-4x < 0, so |x²-4x| = -(x²-4x) = 4x-x² (parabola opening down, flipped up) -->
+        <path d="M 100 240 Q 150 140 200 100 Q 250 140 300 240" fill="none" stroke="#dc2626" stroke-width="3"/>
+        <!-- For x > 4: x²-4x > 0, so |x²-4x| = x²-4x -->
+        <path d="M 300 240 Q 330 180 360 100" fill="none" stroke="#2563eb" stroke-width="3"/>
+        <!-- Corner points at x=0 and x=4 -->
+        <circle cx="100" cy="240" r="6" fill="#f59e0b" stroke="#d97706" stroke-width="2"/>
+        <text x="100" y="260" text-anchor="middle" font-size="10" fill="#d97706" font-weight="bold">x=0</text>
+        <circle cx="300" cy="240" r="6" fill="#f59e0b" stroke="#d97706" stroke-width="2"/>
+        <text x="300" y="260" text-anchor="middle" font-size="10" fill="#d97706" font-weight="bold">x=4</text>
+        <!-- Local max at x=2 -->
+        <circle cx="200" cy="100" r="5" fill="#10b981" stroke="#065f46" stroke-width="2"/>
+        <text x="200" y="90" text-anchor="middle" font-size="10" fill="#065f46" font-weight="bold">Max at x=2</text>
+        <text x="200" y="280" text-anchor="middle" font-size="11" fill="#9f1239">Not differentiable at x=0 and x=4 (corners where expression = 0)</text>
+        <defs><marker id="arrow3" markerWidth="10" markerHeight="10" refX="9" refY="3" orient="auto"><path d="M0,0 L0,6 L9,3 z" fill="#374151"/></marker></defs>
+    </svg>`,
+    
+    // e^(-2/x) function
+    exp_neg_2_over_x: `<svg class="svg-graph" width="400" height="300" viewBox="0 0 400 300" xmlns="http://www.w3.org/2000/svg">
+        <rect x="5" y="5" width="390" height="290" rx="12" fill="#ecfdf5" stroke="#10b981" stroke-width="2"/>
+        <text x="200" y="25" text-anchor="middle" font-size="14" fill="#065f46" font-weight="bold">g(x) = e^(-2/x) - تمرين 30(a)</text>
+        <!-- Axes -->
+        <line x1="50" y1="240" x2="370" y2="240" stroke="#374151" stroke-width="2" marker-end="url(#arrow4)"/>
+        <line x1="200" y1="240" x2="200" y2="30" stroke="#374151" stroke-width="2" marker-end="url(#arrow4)"/>
+        <text x="380" y="245" font-size="12" fill="#374151">x</text>
+        <text x="190" y="25" font-size="12" fill="#374151">y</text>
+        <text x="200" y="255" text-anchor="middle" font-size="10" fill="#374151">0</text>
+        <!-- Vertical asymptote at x=0 -->
+        <line x1="200" y1="30" x2="200" y2="240" stroke="#dc2626" stroke-width="2" stroke-dasharray="5"/>
+        <text x="210" y="45" font-size="11" fill="#dc2626" font-weight="bold">x=0 (asymptote)</text>
+        <!-- For x < 0: -2/x > 0, so e^(-2/x) → ∞ as x→0⁻ -->
+        <path d="M 60 230 Q 100 220 140 200 Q 170 150 190 60" fill="none" stroke="#2563eb" stroke-width="3"/>
+        <!-- For x > 0: -2/x < 0, so e^(-2/x) → 0 as x→0⁺, → 1 as x→∞ -->
+        <path d="M 210 240 Q 250 200 290 170 Q 330 150 370 140" fill="none" stroke="#2563eb" stroke-width="3"/>
+        <!-- Horizontal asymptote y=1 -->
+        <line x1="50" y1="140" x2="370" y2="140" stroke="#7c3aed" stroke-width="1" stroke-dasharray="4"/>
+        <text x="375" y="135" font-size="10" fill="#7c3aed">y=1</text>
+        <text x="200" y="275" text-anchor="middle" font-size="11" fill="#065f46">Not differentiable at x=0 (discontinuous, vertical asymptote)</text>
+        <defs><marker id="arrow4" markerWidth="10" markerHeight="10" refX="9" refY="3" orient="auto"><path d="M0,0 L0,6 L9,3 z" fill="#374151"/></marker></defs>
+    </svg>`,
+    
+    // e^(-2/x²) function
+    exp_neg_2_over_x_squared: `<svg class="svg-graph" width="400" height="300" viewBox="0 0 400 300" xmlns="http://www.w3.org/2000/svg">
+        <rect x="5" y="5" width="390" height="290" rx="12" fill="#ede9fe" stroke="#7c3aed" stroke-width="2"/>
+        <text x="200" y="25" text-anchor="middle" font-size="14" fill="#5b21b6" font-weight="bold">g(x) = e^(-2/x²) - تمرين 30(b)</text>
+        <!-- Axes -->
+        <line x1="50" y1="240" x2="370" y2="240" stroke="#374151" stroke-width="2" marker-end="url(#arrow5)"/>
+        <line x1="200" y1="240" x2="200" y2="30" stroke="#374151" stroke-width="2" marker-end="url(#arrow5)"/>
+        <text x="380" y="245" font-size="12" fill="#374151">x</text>
+        <text x="190" y="25" font-size="12" fill="#374151">y</text>
+        <text x="200" y="255" text-anchor="middle" font-size="10" fill="#374151">0</text>
+        <!-- Bell-shaped curve, symmetric about y-axis -->
+        <!-- As x→0, -2/x² → -∞, so e^(-2/x²) → 0 -->
+        <!-- As x→±∞, -2/x² → 0, so e^(-2/x²) → 1 -->
+        <path d="M 60 140 Q 100 140 140 150 Q 170 180 190 220 Q 200 240 210 220 Q 230 180 260 150 Q 300 140 340 140" fill="none" stroke="#7c3aed" stroke-width="3"/>
+        <!-- Hole at origin -->
+        <circle cx="200" cy="240" r="6" fill="white" stroke="#dc2626" stroke-width="2"/>
+        <text x="215" y="255" font-size="10" fill="#dc2626" font-weight="bold">Hole at (0,0)</text>
+        <!-- Horizontal asymptote y=1 -->
+        <line x1="50" y1="140" x2="370" y2="140" stroke="#10b981" stroke-width="1" stroke-dasharray="4"/>
+        <text x="375" y="135" font-size="10" fill="#10b981">y=1</text>
+        <text x="200" y="275" text-anchor="middle" font-size="11" fill="#5b21b6">Continuous at x=0 (limit = 0) but NOT differentiable (sharp behavior)</text>
+        <defs><marker id="arrow5" markerWidth="10" markerHeight="10" refX="9" refY="3" orient="auto"><path d="M0,0 L0,6 L9,3 z" fill="#374151"/></marker></defs>
+    </svg>`,
+    
+    // Differentiability concept
+    differentiability_concept: `<svg class="svg-graph" width="400" height="280" viewBox="0 0 400 280" xmlns="http://www.w3.org/2000/svg">
+        <rect x="5" y="5" width="390" height="270" rx="12" fill="#fee2e2" stroke="#dc2626" stroke-width="2"/>
+        <text x="200" y="25" text-anchor="middle" font-size="14" fill="#991b1b" font-weight="bold">⚠️ أسباب عدم قابلية الاشتقاق</text>
+        <!-- Four types -->
+        <rect x="20" y="45" width="170" height="100" rx="6" fill="#fecaca" stroke="#dc2626" stroke-width="2"/>
+        <text x="105" y="65" text-anchor="middle" font-size="11" fill="#991b1b" font-weight="bold">1. Corner (ركن)</text>
+        <path d="M 40 130 L 105 100 L 170 130" fill="none" stroke="#dc2626" stroke-width="2"/>
+        <text x="105" y="140" text-anchor="middle" font-size="9" fill="#991b1b">e.g., |x| at x=0</text>
+        <rect x="210" y="45" width="170" height="100" rx="6" fill="#fecaca" stroke="#dc2626" stroke-width="2"/>
+        <text x="295" y="65" text-anchor="middle" font-size="11" fill="#991b1b" font-weight="bold">2. Cusp (مدبب)</text>
+        <path d="M 230 130 Q 260 100 295 70 Q 330 100 360 130" fill="none" stroke="#dc2626" stroke-width="2"/>
+        <text x="295" y="140" text-anchor="middle" font-size="9" fill="#991b1b">e.g., x^(2/3) at x=0</text>
+        <rect x="20" y="155" width="170" height="100" rx="6" fill="#fecaca" stroke="#dc2626" stroke-width="2"/>
+        <text x="105" y="175" text-anchor="middle" font-size="11" fill="#991b1b" font-weight="bold">3. Discontinuity</text>
+        <line x1="40" y1="220" x2="90" y2="200" stroke="#dc2626" stroke-width="2"/>
+        <circle cx="90" cy="200" r="3" fill="white" stroke="#dc2626" stroke-width="2"/>
+        <circle cx="120" cy="180" r="3" fill="#dc2626"/>
+        <line x1="120" y1="180" x2="170" y2="160" stroke="#dc2626" stroke-width="2"/>
+        <text x="105" y="245" text-anchor="middle" font-size="9" fill="#991b1b">Jump discontinuity</text>
+        <rect x="210" y="155" width="170" height="100" rx="6" fill="#fecaca" stroke="#dc2626" stroke-width="2"/>
+        <text x="295" y="175" text-anchor="middle" font-size="11" fill="#991b1b" font-weight="bold">4. Vertical tangent</text>
+        <path d="M 250 240 Q 270 200 295 170 Q 320 140 340 80" fill="none" stroke="#dc2626" stroke-width="2"/>
+        <text x="295" y="245" text-anchor="middle" font-size="9" fill="#991b1b">e.g., x^(1/3) at x=0</text>
+    </svg>`
+};
+
+// ==================== EXAM DATA - 25 QUESTIONS ====================
+const originalExamData = {
+    sections: [
+        {
+            id: 'sec1',
+            title: { ar: ' القسم 1: تمرين 29(a) - f(x) = |x| + |x-2| (Q1-Q5)', en: ' Section 1: Exercise 29(a) - f(x) = |x| + |x-2| (Q1-Q5)' },
+            questions: [
+                {
+                    q: { ar: '<strong>تمرين 29(a):</strong> f(x) = |x| + |x-2|. عند أي قيم x تكون f غير قابلة للاشتقاق؟', en: '<strong>Exercise 29(a):</strong> f(x) = |x| + |x-2|. At which x values is f not differentiable?' },
+                    svg: svgGraphs.abs_x_plus_abs_x_minus_2,
+                    options: [
+                        { ar: '<span class="math-display">x = 0</span> و <span class="math-display">x = 2</span>', en: '<span class="math-display">x = 0</span> and <span class="math-display">x = 2</span>' },
+                        { ar: '<span class="math-display">x = 0</span> فقط', en: '<span class="math-display">x = 0</span> only' },
+                        { ar: '<span class="math-display">x = 2</span> فقط', en: '<span class="math-display">x = 2</span> only' },
+                        { ar: 'قابلة للاشتقاق في كل مكان', en: 'Differentiable everywhere' }
+                    ],
+                    correct: 0,
+                    answer: { ar: 'غير قابلة للاشتقاق عند النقاط التي يتغير فيها ما داخل القيمة المطلقة: x=0 و x=2 (نقاط ركن)', en: 'Not differentiable at points where expression inside absolute value changes sign: x=0 and x=2 (corner points)' }
+                },
+                {
+                    q: { ar: 'نفس الدالة: ما قيمة f(0)؟', en: 'Same function: What is f(0)?' },
+                    options: [
+                        { ar: '<span class="math-display">2</span>', en: '<span class="math-display">2</span>' },
+                        { ar: '<span class="math-display">0</span>', en: '<span class="math-display">0</span>' },
+                        { ar: '<span class="math-display">-2</span>', en: '<span class="math-display">-2</span>' },
+                        { ar: '<span class="math-display">4</span>', en: '<span class="math-display">4</span>' }
+                    ],
+                    correct: 0,
+                    answer: { ar: 'f(0) = |0| + |0-2| = 0 + 2 = 2', en: 'f(0) = |0| + |0-2| = 0 + 2 = 2' }
+                },
+                {
+                    q: { ar: 'نفس الدالة: ما قيمة f(2)؟', en: 'Same function: What is f(2)?' },
+                    options: [
+                        { ar: '<span class="math-display">2</span>', en: '<span class="math-display">2</span>' },
+                        { ar: '<span class="math-display">0</span>', en: '<span class="math-display">0</span>' },
+                        { ar: '<span class="math-display">4</span>', en: '<span class="math-display">4</span>' },
+                        { ar: '<span class="math-display">-2</span>', en: '<span class="math-display">-2</span>' }
+                    ],
+                    correct: 0,
+                    answer: { ar: 'f(2) = |2| + |2-2| = 2 + 0 = 2', en: 'f(2) = |2| + |2-2| = 2 + 0 = 2' }
+                },
+                {
+                    q: { ar: 'نفس الدالة: ما قيمة f(1) (بين النقطتين الحرجتين)؟', en: 'Same function: What is f(1) (between critical points)?' },
+                    options: [
+                        { ar: '<span class="math-display">2</span>', en: '<span class="math-display">2</span>' },
+                        { ar: '<span class="math-display">1</span>', en: '<span class="math-display">1</span>' },
+                        { ar: '<span class="math-display">0</span>', en: '<span class="math-display">0</span>' },
+                        { ar: '<span class="math-display">3</span>', en: '<span class="math-display">3</span>' }
+                    ],
+                    correct: 0,
+                    answer: { ar: 'f(1) = |1| + |1-2| = 1 + 1 = 2. الدالة ثابتة (=2) على الفترة [0,2]', en: 'f(1) = |1| + |1-2| = 1 + 1 = 2. Function is constant (=2) on [0,2]' }
+                },
+                {
+                    q: { ar: 'نفس الدالة: لماذا f غير قابلة للاشتقاق عند x=0؟', en: 'Same function: Why is f not differentiable at x=0?' },
+                    options: [
+                        { ar: 'لأن المشتقة اليسرى (-2) ≠ المشتقة اليمنى (0) - نقطة ركن', en: 'Because left derivative (-2) ≠ right derivative (0) - corner point' },
+                        { ar: 'لأن الدالة غير متصلة', en: 'Because function is discontinuous' },
+                        { ar: 'لأن f(0) غير معرّفة', en: 'Because f(0) is undefined' },
+                        { ar: 'لا سبب محدد', en: 'No specific reason' }
+                    ],
+                    correct: 0,
+                    answer: { ar: 'عند x=0: المشتقة اليسرى = -2 والمشتقة اليمنى = 0. مختلفتان → نقطة ركن → غير قابلة للاشتقاق', en: 'At x=0: left derivative = -2, right derivative = 0. Different → corner → not differentiable' }
+                }
+            ]
+        },
+        {
+            id: 'sec2',
+            title: { ar: '🔹 القسم 2: تمرين 29(b) - f(x) = |x² - 4x| (Q6-Q10)', en: '🔹 Section 2: Exercise 29(b) - f(x) = |x² - 4x| (Q6-Q10)' },
+            questions: [
+                {
+                    q: { ar: '<strong>تمرين 29(b):</strong> f(x) = |x² - 4x|. عند أي قيم x تكون f غير قابلة للاشتقاق؟', en: '<strong>Exercise 29(b):</strong> f(x) = |x² - 4x|. At which x values is f not differentiable?' },
+                    svg: svgGraphs.abs_x_squared_minus_4x,
+                    options: [
+                        { ar: '<span class="math-display">x = 0</span> و <span class="math-display">x = 4</span>', en: '<span class="math-display">x = 0</span> and <span class="math-display">x = 4</span>' },
+                        { ar: '<span class="math-display">x = 0</span> فقط', en: '<span class="math-display">x = 0</span> only' },
+                        { ar: '<span class="math-display">x = 2</span> فقط', en: '<span class="math-display">x = 2</span> only' },
+                        { ar: '<span class="math-display">x = 4</span> فقط', en: '<span class="math-display">x = 4</span> only' }
+                    ],
+                    correct: 0,
+                    answer: { ar: 'x² - 4x = x(x-4) = 0 عند x=0 و x=4. عند هاتين النقطتين يتغير إشارة ما داخل |·| → نقاط ركن', en: 'x² - 4x = x(x-4) = 0 at x=0 and x=4. At these points, sign inside |·| changes → corner points' }
+                },
+                {
+                    q: { ar: 'نفس الدالة: ما قيمة f(0)؟', en: 'Same function: What is f(0)?' },
+                    options: [
+                        { ar: '<span class="math-display">0</span>', en: '<span class="math-display">0</span>' },
+                        { ar: '<span class="math-display">4</span>', en: '<span class="math-display">4</span>' },
+                        { ar: '<span class="math-display">-4</span>', en: '<span class="math-display">-4</span>' },
+                        { ar: '<span class="math-display">2</span>', en: '<span class="math-display">2</span>' }
+                    ],
+                    correct: 0,
+                    answer: { ar: 'f(0) = |0² - 4(0)| = |0| = 0', en: 'f(0) = |0² - 4(0)| = |0| = 0' }
+                },
+                {
+                    q: { ar: 'نفس الدالة: ما قيمة f(4)؟', en: 'Same function: What is f(4)?' },
+                    options: [
+                        { ar: '<span class="math-display">0</span>', en: '<span class="math-display">0</span>' },
+                        { ar: '<span class="math-display">4</span>', en: '<span class="math-display">4</span>' },
+                        { ar: '<span class="math-display">16</span>', en: '<span class="math-display">16</span>' },
+                        { ar: '<span class="math-display">-16</span>', en: '<span class="math-display">-16</span>' }
+                    ],
+                    correct: 0,
+                    answer: { ar: 'f(4) = |16 - 16| = 0', en: 'f(4) = |16 - 16| = 0' }
+                },
+                {
+                    q: { ar: 'نفس الدالة: ما قيمة f(2) (رأس القطع المكافئ الداخلي)؟', en: 'Same function: What is f(2) (vertex of inner parabola)?' },
+                    options: [
+                        { ar: '<span class="math-display">4</span>', en: '<span class="math-display">4</span>' },
+                        { ar: '<span class="math-display">0</span>', en: '<span class="math-display">0</span>' },
+                        { ar: '<span class="math-display">-4</span>', en: '<span class="math-display">-4</span>' },
+                        { ar: '<span class="math-display">2</span>', en: '<span class="math-display">2</span>' }
+                    ],
+                    correct: 0,
+                    answer: { ar: 'f(2) = |4 - 8| = |-4| = 4', en: 'f(2) = |4 - 8| = |-4| = 4' }
+                },
+                {
+                    q: { ar: 'نفس الدالة: ما شكل الرسم البياني بين x=0 و x=4؟', en: 'Same function: What is graph shape between x=0 and x=4?' },
+                    options: [
+                        { ar: 'قطع مكافئ مفتوح للأسفل (لأن |·| قلب الإشارة)', en: 'Downward parabola (because |·| flipped the sign)' },
+                        { ar: 'قطع مكافئ مفتوح للأعلى', en: 'Upward parabola' },
+                        { ar: 'خط مستقيم', en: 'Straight line' },
+                        { ar: 'دالة ثابتة', en: 'Constant function' }
+                    ],
+                    correct: 0,
+                    answer: { ar: 'بين 0 و 4: x²-4x < 0، لذا |x²-4x| = -(x²-4x) = 4x-x² (قطع مكافئ مفتوح للأسفل مقلوب لأعلى)', en: 'Between 0 and 4: x²-4x < 0, so |x²-4x| = -(x²-4x) = 4x-x² (upward flipped parabola)' }
+                }
+            ]
+        },
+        {
+            id: 'sec3',
+            title: { ar: '🔹 القسم 3: تمرين 30 - الدوال الأسية (Q11-Q15)', en: '🔹 Section 3: Exercise 30 - Exponential Functions (Q11-Q15)' },
+            questions: [
+                {
+                    q: { ar: '<strong>تمرين 30(a):</strong> g(x) = e^(-2/x). عند أي قيمة x تكون g غير قابلة للاشتقاق؟', en: '<strong>Exercise 30(a):</strong> g(x) = e^(-2/x). At which x value is g not differentiable?' },
+                    svg: svgGraphs.exp_neg_2_over_x,
+                    options: [
+                        { ar: '<span class="math-display">x = 0</span>', en: '<span class="math-display">x = 0</span>' },
+                        { ar: '<span class="math-display">x = 2</span>', en: '<span class="math-display">x = 2</span>' },
+                        { ar: '<span class="math-display">x = -2</span>', en: '<span class="math-display">x = -2</span>' },
+                        { ar: 'قابلة للاشتقاق في كل مكان', en: 'Differentiable everywhere' }
+                    ],
+                    correct: 0,
+                    answer: { ar: 'عند x=0: الدالة غير معرّفة (القسمة على صفر) → غير متصلة → غير قابلة للاشتقاق', en: 'At x=0: function undefined (division by zero) → discontinuous → not differentiable' }
+                },
+                {
+                    q: { ar: 'نفس الدالة: ما lim x→0⁺ g(x)؟', en: 'Same function: What is lim x→0⁺ g(x)?' },
+                    options: [
+                        { ar: '<span class="math-display">0</span>', en: '<span class="math-display">0</span>' },
+                        { ar: '<span class="math-display">1</span>', en: '<span class="math-display">1</span>' },
+                        { ar: '<span class="math-display">∞</span>', en: '<span class="math-display">∞</span>' },
+                        { ar: '<span class="math-display">-∞</span>', en: '<span class="math-display">-∞</span>' }
+                    ],
+                    correct: 0,
+                    answer: { ar: 'عندما x→0⁺: -2/x → -∞، لذا e^(-2/x) → e^(-∞) = 0', en: 'As x→0⁺: -2/x → -∞, so e^(-2/x) → e^(-∞) = 0' }
+                },
+                {
+                    q: { ar: 'نفس الدالة: ما lim x→0⁻ g(x)؟', en: 'Same function: What is lim x→0⁻ g(x)?' },
+                    options: [
+                        { ar: '<span class="math-display">∞</span>', en: '<span class="math-display">∞</span>' },
+                        { ar: '<span class="math-display">0</span>', en: '<span class="math-display">0</span>' },
+                        { ar: '<span class="math-display">1</span>', en: '<span class="math-display">1</span>' },
+                        { ar: '<span class="math-display">-∞</span>', en: '<span class="math-display">-∞</span>' }
+                    ],
+                    correct: 0,
+                    answer: { ar: 'عندما x→0⁻: -2/x → +∞، لذا e^(-2/x) → e^(+∞) = ∞', en: 'As x→0⁻: -2/x → +∞, so e^(-2/x) → e^(+) = ∞' }
+                },
+                {
+                    q: { ar: '<strong>تمرين 30(b):</strong> g(x) = e^(-2/x²). عند أي قيمة x تكون g غير قابلة للاشتقاق؟', en: '<strong>Exercise 30(b):</strong> g(x) = e^(-2/x²). At which x value is g not differentiable?' },
+                    svg: svgGraphs.exp_neg_2_over_x_squared,
+                    options: [
+                        { ar: '<span class="math-display">x = 0</span>', en: '<span class="math-display">x = 0</span>' },
+                        { ar: '<span class="math-display">x = 2</span>', en: '<span class="math-display">x = 2</span>' },
+                        { ar: '<span class="math-display">x = -2</span>', en: '<span class="math-display">x = -2</span>' },
+                        { ar: 'قابلة للاشتقاق في كل مكان', en: 'Differentiable everywhere' }
+                    ],
+                    correct: 0,
+                    answer: { ar: 'عند x=0: الدالة غير معرّفة (القسمة على صفر) → غير قابلة للاشتقاق', en: 'At x=0: function undefined (division by zero) → not differentiable' }
+                },
+                {
+                    q: { ar: 'نفس الدالة: ما lim x→0 g(x)؟ (ملاحظة: x² موجب دائماً)', en: 'Same function: What is lim x→0 g(x)? (Note: x² always positive)' },
+                    options: [
+                        { ar: '<span class="math-display">0</span>', en: '<span class="math-display">0</span>' },
+                        { ar: '<span class="math-display">1</span>', en: '<span class="math-display">1</span>' },
+                        { ar: '<span class="math-display">∞</span>', en: '<span class="math-display">∞</span>' },
+                        { ar: 'غير موجود', en: 'Does not exist' }
+                    ],
+                    correct: 0,
+                    answer: { ar: 'عندما x→0: -2/x² → -∞ (لأن x² → 0⁺)، لذا e^(-2/x²) → 0. النهاية موجودة وتساوي 0', en: 'As x→0: -2/x² → -∞ (since x² → 0⁺), so e^(-2/x²) → 0. Limit exists and equals 0' }
+                }
+            ]
+        },
+        {
+            id: 'sec4',
+            title: { ar: '🔹 القسم 4: دوال قيمة مطلقة مشابهة (Q16-Q20)', en: '🔹 Section 4: Similar Absolute Value Functions (Q16-Q20)' },
+            questions: [
+                {
+                    q: { ar: 'f(x) = |x - 3|. عند أي x تكون f غير قابلة للاشتقاق؟', en: 'f(x) = |x - 3|. At which x is f not differentiable?' },
+                    options: [
+                        { ar: '<span class="math-display">x = 3</span>', en: '<span class="math-display">x = 3</span>' },
+                        { ar: '<span class="math-display">x = 0</span>', en: '<span class="math-display">x = 0</span>' },
+                        { ar: '<span class="math-display">x = -3</span>', en: '<span class="math-display">x = -3</span>' },
+                        { ar: 'قابلة للاشتقاق في كل مكان', en: 'Differentiable everywhere' }
+                    ],
+                    correct: 0,
+                    answer: { ar: 'x - 3 = 0 → x = 3. نقطة ركن عند x=3', en: 'x - 3 = 0 → x = 3. Corner point at x=3' }
+                },
+                {
+                    q: { ar: 'f(x) = |x + 2| + |x - 1|. عند أي قيم x تكون f غير قابلة للاشتقاق؟', en: 'f(x) = |x + 2| + |x - 1|. At which x values is f not differentiable?' },
+                    options: [
+                        { ar: '<span class="math-display">x = -2</span> و <span class="math-display">x = 1</span>', en: '<span class="math-display">x = -2</span> and <span class="math-display">x = 1</span>' },
+                        { ar: '<span class="math-display">x = -2</span> فقط', en: '<span class="math-display">x = -2</span> only' },
+                        { ar: '<span class="math-display">x = 1</span> فقط', en: '<span class="math-display">x = 1</span> only' },
+                        { ar: '<span class="math-display">x = 0</span>', en: '<span class="math-display">x = 0</span>' }
+                    ],
+                    correct: 0,
+                    answer: { ar: 'x+2=0 → x=-2 و x-1=0 → x=1. نقطتا ركن عند x=-2 و x=1', en: 'x+2=0 → x=-2 and x-1=0 → x=1. Corner points at x=-2 and x=1' }
+                },
+                {
+                    q: { ar: 'f(x) = |x² - 9|. عند أي قيم x تكون f غير قابلة للاشتقاق؟', en: 'f(x) = |x² - 9|. At which x values is f not differentiable?' },
+                    options: [
+                        { ar: '<span class="math-display">x = 3</span> و <span class="math-display">x = -3</span>', en: '<span class="math-display">x = 3</span> and <span class="math-display">x = -3</span>' },
+                        { ar: '<span class="math-display">x = 9</span> فقط', en: '<span class="math-display">x = 9</span> only' },
+                        { ar: '<span class="math-display">x = 0</span>', en: '<span class="math-display">x = 0</span>' },
+                        { ar: 'قابلة للاشتقاق في كل مكان', en: 'Differentiable everywhere' }
+                    ],
+                    correct: 0,
+                    answer: { ar: 'x² - 9 = 0 → x = ±3. نقطتا ركن عند x=3 و x=-3', en: 'x² - 9 = 0 → x = ±3. Corner points at x=3 and x=-3' }
+                },
+                {
+                    q: { ar: 'f(x) = |x| · x. عند أي x تكون f غير قابلة للاشتقاق؟', en: 'f(x) = |x| · x. At which x is f not differentiable?' },
+                    options: [
+                        { ar: 'قابلة للاشتقاق في كل مكان (f(x) = x² لـ x≥0 و -x² لـ x<0، والمشتقة متصلة)', en: 'Differentiable everywhere (f(x) = x² for x≥0 and -x² for x<0, derivative continuous)' },
+                        { ar: '<span class="math-display">x = 0</span>', en: '<span class="math-display">x = 0</span>' },
+                        { ar: '<span class="math-display">x = 1</span>', en: '<span class="math-display">x = 1</span>' },
+                        { ar: '<span class="math-display">x = -1</span>', en: '<span class="math-display">x = -1</span>' }
+                    ],
+                    correct: 0,
+                    answer: { ar: 'f(x) = x² لـ x≥0 و -x² لـ x<0. المشتقة: f\'(x) = 2x لـ x>0 و -2x لـ x<0. عند x=0: المشتقة اليسرى = 0 = المشتقة اليمنى → قابلة للاشتقاق!', en: 'f(x) = x² for x≥0 and -x² for x<0. Derivative: f\'(x) = 2x for x>0 and -2x for x<0. At x=0: left deriv = 0 = right deriv → differentiable!' }
+                },
+                {
+                    q: { ar: 'f(x) = |x - 1| + |x - 3| + |x - 5|. كم نقطة عدم اشتقاق؟', en: 'f(x) = |x - 1| + |x - 3| + |x - 5|. How many non-differentiable points?' },
+                    options: [
+                        { ar: '<span class="math-display">3</span> نقاط (x=1, 3, 5)', en: '<span class="math-display">3</span> points (x=1, 3, 5)' },
+                        { ar: '<span class="math-display">2</span> نقاط', en: '<span class="math-display">2</span> points' },
+                        { ar: '<span class="math-display">1</span> نقطة', en: '<span class="math-display">1</span> point' },
+                        { ar: 'لا توجد', en: 'None' }
+                    ],
+                    correct: 0,
+                    answer: { ar: 'كل |x-a| تعطي نقطة ركن عند x=a. إذن 3 نقاط: x=1, x=3, x=5', en: 'Each |x-a| gives corner at x=a. So 3 points: x=1, x=3, x=5' }
+                }
+            ]
+        },
+        {
+            id: 'sec5',
+            title: { ar: ' القسم 5: مفاهيم وتطبيقات (Q21-Q25)', en: '🔹 Section 5: Concepts & Applications (Q21-Q25)' },
+            questions: [
+                {
+                    q: { ar: 'ما العلاقة بين الاتصال وقابلية الاشتقاق؟', en: 'What is relationship between continuity and differentiability?' },
+                    svg: svgGraphs.differentiability_concept,
+                    options: [
+                        { ar: 'قابلة للاشتقاق → متصلة، لكن العكس غير صحيح', en: 'Differentiable → Continuous, but not vice versa' },
+                        { ar: 'متصلة → قابلة للاشتقاق دائماً', en: 'Continuous → Always differentiable' },
+                        { ar: 'لا علاقة', en: 'No relationship' },
+                        { ar: 'قابلة للاشتقاق ↔ متصلة دائماً', en: 'Differentiable ↔ Continuous always' }
+                    ],
+                    correct: 0,
+                    answer: { ar: 'كل دالة قابلة للاشتقاق عند نقطة هي متصلة عندها، لكن العكس غير صحيح (مثل |x| متصلة عند 0 لكن غير قابلة للاشتقاق)', en: 'Every differentiable function at a point is continuous there, but not vice versa (like |x| continuous at 0 but not differentiable)' }
+                },
+                {
+                    q: { ar: 'أي دالة من التالية غير قابلة للاشتقاق عند x=0؟', en: 'Which function is not differentiable at x=0?' },
+                    options: [
+                        { ar: '<span class="math-display">f(x) = |x|</span>', en: '<span class="math-display">f(x) = |x|</span>' },
+                        { ar: '<span class="math-display">f(x) = x²</span>', en: '<span class="math-display">f(x) = x²</span>' },
+                        { ar: '<span class="math-display">f(x) = x³</span>', en: '<span class="math-display">f(x) = x³</span>' },
+                        { ar: '<span class="math-display">f(x) = sin(x)</span>', en: '<span class="math-display">f(x) = sin(x)</span>' }
+                    ],
+                    correct: 0,
+                    answer: { ar: '|x| لها نقطة ركن عند x=0 (المشتقة اليسرى = -1 واليمنى = +1)', en: '|x| has corner at x=0 (left derivative = -1, right derivative = +1)' }
+                },
+                {
+                    q: { ar: 'f(x) = x^(1/3). ما حالة الاشتقاق عند x=0؟', en: 'f(x) = x^(1/3). What is differentiability at x=0?' },
+                    options: [
+                        { ar: 'غير قابلة للاشتقاق (مماس عمودي)', en: 'Not differentiable (vertical tangent)' },
+                        { ar: 'قابلة للاشتقاق', en: 'Differentiable' },
+                        { ar: 'غير متصلة', en: 'Discontinuous' },
+                        { ar: 'لها نقطة ركن', en: 'Has corner point' }
+                    ],
+                    correct: 0,
+                    answer: { ar: 'f\'(x) = (1/3)x^(-2/3) = 1/(3x^(2/3)). عند x=0: المشتقة → ∞ (مماس عمودي) → غير قابلة للاشتقاق', en: 'f\'(x) = (1/3)x^(-2/3) = 1/(3x^(2/3)). At x=0: derivative → ∞ (vertical tangent) → not differentiable' }
+                },
+                {
+                    q: { ar: 'f(x) = {x², x≥0; -x², x<0}. هل f قابلة للاشتقاق عند x=0؟', en: 'f(x) = {x², x≥0; -x², x<0}. Is f differentiable at x=0?' },
+                    options: [
+                        { ar: 'نعم، f\'(0) = 0', en: 'Yes, f\'(0) = 0' },
+                        { ar: 'لا، نقطة ركن', en: 'No, corner point' },
+                        { ar: 'لا، غير متصلة', en: 'No, discontinuous' },
+                        { ar: 'لا يمكن التحديد', en: 'Cannot determine' }
+                    ],
+                    correct: 0,
+                    answer: { ar: 'المشتقة اليسرى: lim h→0⁻ [-h²-0]/h = 0. المشتقة اليمنى: lim h→0⁺ [h²-0]/h = 0. متساويتان → قابلة للاشتقاق، f\'(0) = 0', en: 'Left derivative: lim h→0⁻ [-h²-0]/h = 0. Right derivative: lim h→0⁺ [h²-0]/h = 0. Equal → differentiable, f\'(0) = 0' }
+                },
+                {
+                    q: { ar: 'ما نوع عدم الاشتقاق في f(x) = |x| عند x=0؟', en: 'What type of non-differentiability in f(x) = |x| at x=0?' },
+                    options: [
+                        { ar: 'نقطة ركن (Corner)', en: 'Corner point' },
+                        { ar: 'نقطة مدببة (Cusp)', en: 'Cusp point' },
+                        { ar: 'انقطاع (Discontinuity)', en: 'Discontinuity' },
+                        { ar: 'مماس عمودي (Vertical tangent)', en: 'Vertical tangent' }
+                    ],
+                    correct: 0,
+                    answer: { ar: '|x| لها نقطة ركن عند x=0: المشتقة اليسرى = -1 والمشتقة اليمنى = +1 (كلاهما منتهٍ لكن مختلف)', en: '|x| has corner at x=0: left derivative = -1 and right derivative = +1 (both finite but different)' }
+                }
+            ]
+        }
+    ]
+};
+
+function shuffleArray(array) {
+    const arr = [...array];
+    for (let i = arr.length - 1; i > 0; i--) {
+        const j = Math.floor(rng() * (i + 1));
+        [arr[i], arr[j]] = [arr[j], arr[i]];
+    }
+    return arr;
+}
+
+function prepareShuffledExam() {
+    rng = mulberry32(currentSeed);
+    examData = JSON.parse(JSON.stringify(originalExamData));
+    correctAnswersMap = {};
+    let globalIdx = 0;
+    examData.sections.forEach((section) => {
+        section.questions = shuffleArray(section.questions);
+        section.questions.forEach((q) => {
+            const optionsWithCorrect = q.options.map((opt, idx) => ({ option: opt, isCorrect: idx === q.correct }));
+            const shuffledOptions = shuffleArray(optionsWithCorrect);
+            q.options = shuffledOptions.map(o => o.option);
+            q.correct = shuffledOptions.findIndex(o => o.isCorrect);
+            correctAnswersMap[globalIdx] = String.fromCharCode(97 + q.correct);
+            globalIdx++;
+        });
+    });
+}
+
+function reshuffleExam() {
+    const msg = currentLang === 'ar' ? '🔄 سيتم إنشاء أسئلة جديدة ومسح إجاباتك. هل أنت متأكد؟' : '🔄 New questions will be generated. Are you sure?';
+    if (confirm(msg)) {
+        currentSeed = Date.now(); timeRemaining = TOTAL_TIME; answersVisible = false;
+        prepareShuffledExam(); renderExam(); saveState();
+        alert(currentLang === 'ar' ? '🎲 تم تغيير الأسئلة! حظاً موفقاً! 🍀' : '🎲 Questions changed! Good luck! 🍀');
+        window.scrollTo({ top: 0, behavior: 'smooth' });
+    }
+}
+
+function setLanguage(lang) {
+    currentLang = lang;
+    document.documentElement.lang = lang;
+    document.documentElement.dir = lang === 'ar' ? 'rtl' : 'ltr';
+    document.getElementById('btn-ar').classList.toggle('active', lang === 'ar');
+    document.getElementById('btn-en').classList.toggle('active', lang === 'en');
+    document.body.classList.toggle('en-mode', lang === 'en');
+    renderExam(); saveState(false);
+}
+
+function renderExam() {
+    const container = document.getElementById('exam-content');
+    const labels = { ar: { option: ['أ', 'ب', 'ج', 'د'], answer: '✅ الإجابة:' }, en: { option: ['A', 'B', 'C', 'D'], answer: '✅ Answer:' } };
+    const lbl = labels[currentLang];
+    let html = '';
+    let globalIdx = 0;
+    
+    examData.sections.forEach((section, secIdx) => {
+        const badgeClass = ['module-1', 'module-2', 'module-3', 'module-4', 'module-5'][secIdx];
+        html += '<section class="bg-white p-6 rounded-2xl shadow-lg border-2 border-amber-100">';
+        html += '<div class="text-center mb-4"><span class="module-badge ' + badgeClass + '">' + section.title[currentLang] + '</span></div>';
+        html += '<ol class="space-y-4 text-sm">';
+        
+        section.questions.forEach((q) => {
+            html += '<li class="border-r-4 border-amber-400 pr-4 py-2" id="q-' + globalIdx + '">';
+            html += '<strong class="text-amber-700">' + (globalIdx + 1) + '.</strong> ' + q.q[currentLang] + '<br>';
+            
+            if (q.svg) html += '<div class="graph-container">' + q.svg + '</div>';
+            
+            q.options.forEach((opt, oIdx) => {
+                html += '<label class="cursor-pointer block mt-2 mr-4 hover:bg-amber-50 rounded-lg p-2 transition">';
+                html += '<input type="radio" name="q' + globalIdx + '" value="' + String.fromCharCode(97 + oIdx) + '" class="mr-2 ml-2">';
+                html += '<span class="arabic-math">' + lbl.option[oIdx] + ') ' + opt[currentLang] + '</span>';
+                html += '</label>';
+            });
+            
+            html += '<div class="answer-box text-green-700 mt-3 font-medium ' + (answersVisible ? '' : 'hidden') + ' bg-green-50 rounded-lg p-3 border border-green-200">';
+            html += lbl.answer + ' ' + lbl.option[q.correct] + ') <span class="arabic-math">' + q.options[q.correct][currentLang] + '</span><br>';
+            html += '<span class="text-sm text-green-700 mt-2 block arabic-math">' + q.answer[currentLang] + '</span>';
+            html += '</div></li>';
+            globalIdx++;
+        });
+        
+        html += '</ol></section>';
+    });
+    
+    container.innerHTML = html;
+}
+
+function startTimer() {
+    updateTimerDisplay();
+    timerInterval = setInterval(() => {
+        timeRemaining--;
+        updateTimerDisplay();
+        if (timeRemaining % 60 === 0) saveState(false);
+        if (timeRemaining <= 600) document.getElementById('timer').classList.add('timer-warning');
+        if (timeRemaining <= 0) {
+            clearInterval(timerInterval);
+            alert(currentLang === 'ar' ? " انتهى الوقت!" : "⏰ Time's up!");
+            gradeExam();
+        }
+    }, 1000);
+}
+
+function updateTimerDisplay() {
+    const m = Math.floor(timeRemaining / 60);
+    const s = timeRemaining % 60;
+    document.getElementById('timer').textContent = m.toString().padStart(2,'0') + ':' + s.toString().padStart(2,'0');
+}
+
+function toggleAnswers() {
+    answersVisible = !answersVisible;
+    document.querySelectorAll('.answer-box').forEach(el => el.classList.toggle('hidden', !answersVisible));
+    saveState(false);
+}
+
+function gradeExam() {
+    let correctCount = 0;
+    const sectionScores = new Array(TOTAL_SECTIONS).fill(0);
+    
+    for (let i = 0; i < TOTAL_QUESTIONS; i++) {
+        const sel = document.querySelector('input[name="q'+i+'"]:checked');
+        const li = document.getElementById('q-' + i);
+        if (li) {
+            const isCorrect = sel && sel.value === correctAnswersMap[i];
+            if (isCorrect) {
+                correctCount++;
+                li.classList.add('correct');
+                li.classList.remove('incorrect');
+                sectionScores[Math.floor(i / QUESTIONS_PER_SECTION)]++;
+            } else {
+                li.classList.add('incorrect');
+                li.classList.remove('correct');
+            }
+        }
+    }
+    
+    const score = Math.round((correctCount / TOTAL_QUESTIONS) * 100);
+    document.getElementById('res-total').textContent = score + ' / 100';
+    document.getElementById('res-name').textContent = document.getElementById('studentName').value || (currentLang === 'ar' ? 'بطل' : 'Champion');
+    document.getElementById('res-date').textContent = new Date().toLocaleDateString(currentLang === 'ar' ? 'ar-AE' : 'en-US');
+    
+    const pc = document.getElementById('sections-performance');
+    pc.innerHTML = '';
+    examData.sections.forEach((s, idx) => {
+        pc.innerHTML += '<div class="flex justify-between items-center p-3 bg-white rounded-lg"><span class="text-gray-700">' + s.title[currentLang] + '</span><span class="font-bold text-amber-700">' + sectionScores[idx] + '/' + QUESTIONS_PER_SECTION + '</span></div>';
+    });
+    
+    const badge = document.getElementById('success-badge');
+    document.getElementById('success-percent').textContent = score + '%';
+    
+    if (currentLang === 'ar') {
+        if (score >= 90) { badge.textContent = ' ممتاز جداً!'; badge.className = 'success-badge grade-excellent'; }
+        else if (score >= 75) { badge.textContent = '👏 ممتاز!'; badge.className = 'success-badge grade-good'; }
+        else if (score >= 50) { badge.textContent = '👍 جيد'; badge.className = 'success-badge grade-pass'; }
+        else { badge.textContent = '💪 حاول مرة أخرى'; badge.className = 'success-badge grade-fail'; }
+    } else {
+        if (score >= 90) { badge.textContent = '🌟 Outstanding!'; badge.className = 'success-badge grade-excellent'; }
+        else if (score >= 75) { badge.textContent = '👏 Excellent!'; badge.className = 'success-badge grade-good'; }
+        else if (score >= 50) { badge.textContent = ' Good'; badge.className = 'success-badge grade-pass'; }
+        else { badge.textContent = '💪 Try Again'; badge.className = 'success-badge grade-fail'; }
+    }
+    
+    document.getElementById('results-panel').classList.remove('hidden');
+    document.getElementById('results-panel').scrollIntoView({ behavior: 'smooth' });
+    if (timerInterval) clearInterval(timerInterval);
+}
+
+function sendResultsToEmail() {
+    const btn = document.getElementById('sendEmailBtn');
+    const status = document.getElementById('emailStatus');
+    btn.disabled = true;
+    btn.textContent = currentLang === 'ar' ? '⏳ جاري الإرسال...' : '⏳ Sending...';
+    
+    const name = document.getElementById('studentName').value || 'N/A';
+    const studentClass = document.getElementById('studentClass').value || 'N/A';
+    const date = document.getElementById('examDate').value || new Date().toLocaleDateString();
+    const score = document.getElementById('res-total').textContent;
+    const successRate = document.getElementById('success-percent').textContent;
+    const badge = document.getElementById('success-badge').textContent;
+    
+    let questionsHTML = '<div style="font-family:Arial; direction:rtl;">';
+    questionsHTML += '<h2>📊 ' + (currentLang === 'ar' ? 'نتيجة امتحان عدم قابلية الاشتقاق' : 'Non-differentiability Exam Result') + '</h2>';
+    questionsHTML += '<p><strong>' + (currentLang === 'ar' ? 'الاسم' : 'Name') + ':</strong> ' + name + '</p>';
+    questionsHTML += '<p><strong>' + (currentLang === 'ar' ? 'الشعبة' : 'Class') + ':</strong> ' + studentClass + '</p>';
+    questionsHTML += '<p><strong>' + (currentLang === 'ar' ? 'التاريخ' : 'Date') + ':</strong> ' + date + '</p>';
+    questionsHTML += '<p><strong>' + (currentLang === 'ar' ? 'الدرجة' : 'Score') + ':</strong> ' + score + ' (' + successRate + ')</p>';
+    questionsHTML += '<p><strong>' + (currentLang === 'ar' ? 'التقدير' : 'Grade') + ':</strong> ' + badge + '</p>';
+    questionsHTML += '<hr><h3>' + (currentLang === 'ar' ? 'تفاصيل الإجابات:' : 'Answer Details:') + '</h3><table style="width:100%; border-collapse:collapse;">';
+    questionsHTML += '<tr style="background:#d97706; color:white;"><th style="padding:8px; border:1px solid #ddd;">#</th><th style="padding:8px; border:1px solid #ddd;">' + (currentLang === 'ar' ? 'السؤال' : 'Question') + '</th><th style="padding:8px; border:1px solid #ddd;">' + (currentLang === 'ar' ? 'إجابة الطالب' : 'Student Answer') + '</th><th style="padding:8px; border:1px solid #ddd;">' + (currentLang === 'ar' ? 'الصحيحة' : 'Correct') + '</th><th style="padding:8px; border:1px solid #ddd;">' + (currentLang === 'ar' ? 'النتيجة' : 'Result') + '</th></tr>';
+    
+    let globalIdx = 0;
+    examData.sections.forEach((section) => {
+        questionsHTML += '<tr style="background:#fef3c7;"><td colspan="5" style="padding:8px; font-weight:bold; border:1px solid #ddd;">' + section.title.ar + '</td></tr>';
+        section.questions.forEach((q) => {
+            const sel = document.querySelector('input[name="q'+globalIdx+'"]:checked');
+            const sv = sel ? sel.value : null;
+            const cv = correctAnswersMap[globalIdx];
+            const ic = sv === cv;
+            let sat = currentLang === 'ar' ? '❌ لم يجب' : '❌ No answer';
+            let sac = '#dc2626';
+            if (sv) {
+                const si = sv.charCodeAt(0) - 97;
+                sat = q.options[si].ar;
+                sac = ic ? '#16a34a' : '#dc2626';
+            }
+            const cat = q.options[q.correct].ar;
+            const rb = ic ? '#f0fdf4' : '#fef2f2';
+            questionsHTML += '<tr style="background:' + rb + ';"><td style="padding:8px; border:1px solid #ddd; text-align:center;">' + (globalIdx+1) + '</td><td style="padding:8px; border:1px solid #ddd;">' + q.q.ar + '</td><td style="padding:8px; border:1px solid #ddd; color:' + sac + ';">' + sat + '</td><td style="padding:8px; border:1px solid #ddd; color:#16a34a;">' + cat + '</td><td style="padding:8px; border:1px solid #ddd; text-align:center;">' + (ic?'✅':'❌') + '</td></tr>';
+            globalIdx++;
+        });
+    });
+    questionsHTML += '</table></div>';
+    
+    const templateParams = {
+        to_email: TARGET_EMAIL,
+        student_name: name,
+        student_class: studentClass,
+        exam_date: date,
+        total_score: score,
+        success_rate: successRate,
+        grade: badge,
+        answers_table: questionsHTML
+    };
+    
+    emailjs.send(SERVICE_ID, TEMPLATE_ID, templateParams)
+        .then(() => {
+            status.textContent = currentLang === 'ar' ? '✅ تم الإرسال بنجاح!' : '✅ Sent successfully!';
+            status.style.color = '#16a34a';
+            btn.textContent = currentLang === 'ar' ? '✓ تم' : '✓ Sent';
+            alert(currentLang === 'ar' ? 'تم إرسال النتيجة للمعلم بنجاح!' : 'Result sent to teacher successfully!');
+        })
+        .catch((error) => {
+            status.textContent = currentLang === 'ar' ? '❌ فشل الإرسال' : '❌ Failed to send';
+            status.style.color = '#dc2626';
+            btn.disabled = false;
+            btn.textContent = currentLang === 'ar' ? '📧 حاول مرة أخرى' : '📧 Try Again';
+            alert(currentLang === 'ar' ? 'فشل الإرسال: ' + error.text : 'Failed: ' + error.text);
+        });
+}
+
+window.addEventListener('DOMContentLoaded', () => {
+    const saved = loadState();
+    if (saved && saved.seed) {
+        currentSeed = saved.seed;
+        currentLang = saved.lang || 'ar';
+        timeRemaining = saved.timeRemaining !== undefined ? saved.timeRemaining : TOTAL_TIME;
+        answersVisible = saved.answersVisible || false;
+        document.getElementById('btn-ar').classList.toggle('active', currentLang === 'ar');
+        document.getElementById('btn-en').classList.toggle('active', currentLang === 'en');
+        document.body.classList.toggle('en-mode', currentLang === 'en');
+    } else {
+        currentSeed = Date.now();
+    }
+    prepareShuffledExam();
+    renderExam();
+    if (saved) {
+        if (saved.studentName) document.getElementById('studentName').value = saved.studentName;
+        if (saved.studentClass) document.getElementById('studentClass').value = saved.studentClass;
+        if (saved.examDate) document.getElementById('examDate').value = saved.examDate;
+        if (saved.answers) restoreAnswers(saved.answers);
+    }
+    setupAnswerListeners();
+    setupInputListeners();
+    startTimer();
+});
+window.addEventListener('beforeunload', () => saveState(false));
+</script>
+</body>
+</html>
